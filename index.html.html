@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6c4cf5"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Study Quest"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236c4cf5'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E"><link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236c4cf5'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E"><title>Study Quest – Exam Tracker</title>
+<style>
+:root{--bg:#f4f1ff;--card:#fff;--tx:#1d1a33;--mu:#6b668a;--bd:#e3defa;--ac:#6c4cf5;--ok:#16a870;--wr:#f59e0b;--bad:#ef4444;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12101f;--card:#1c1930;--tx:#efecff;--mu:#9a95c0;--bd:#2d2950;--ac:#9b83ff}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:14px;max-width:640px;margin:auto}
+h1{font-size:22px;margin:4px 0}
+.hero{background:linear-gradient(135deg,#6c4cf5,#c04cf5);color:#fff;border-radius:18px;padding:16px;margin-bottom:12px}
+.hero small{opacity:.85}
+.xpbar{height:10px;background:rgba(255,255,255,.3);border-radius:9px;margin-top:10px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:#ffe066;border-radius:9px;transition:width .4s}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px}
+.tab{flex:0 0 auto;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 13px;border-radius:14px;font-size:14px;cursor:pointer}
+.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:12px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:8px}
+.grow{flex:1;min-width:0}
+input{width:100%;padding:10px;border-radius:11px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:15px}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:11px;padding:10px 14px;font-size:15px;cursor:pointer}
+.bar{height:8px;background:var(--bd);border-radius:8px;overflow:hidden;margin:8px 0 2px}
+.bar i{display:block;height:100%;background:var(--ok);transition:width .4s}
+.ch{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}
+.ch:first-child{border-top:0}
+.ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--ac);background:none;color:#fff;font-size:15px;cursor:pointer;flex:0 0 auto}
+.ck.on{background:var(--ok);border-color:var(--ok)}
+.nm.done{color:var(--mu);text-decoration:line-through}
+.rv{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--mu)}
+.rv button{width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:16px;cursor:pointer}
+.stars{letter-spacing:1px;font-size:13px;min-width:62px;text-align:center}
+.x{background:none;border:0;color:var(--mu);font-size:18px;cursor:pointer}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{text-align:center}.stat b{font-size:20px;display:block}.stat span{font-size:12px;color:var(--mu)}
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;color:#fff}
+.mk{padding:10px 0;border-top:1px solid var(--bd)}
+.sm{font-size:12px;color:var(--mu)}
+textarea{width:100%;min-height:90px;padding:10px;border-radius:11px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:12px;margin-top:6px}
+.scroll{overflow-x:auto}
+</style></head><body>
+<div class="hero">
+  <h1>🚀 Study Quest</h1>
+  <small id="lvl"></small>
+  <div class="xpbar"><i id="xp"></i></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div id="view"></div>
+
+<script>
+const SUBJ=[{k:'maths',n:'Maths',e:'🧮'},{k:'english',n:'English',e:'📚'},{k:'reasoning',n:'Reasoning',e:'🧩'},{k:'gk',n:'GK',e:'🌍'}];
+const DEF={maths:['Percentage','Profit & Loss','Time & Work','Simple Interest'],english:['Reading Comprehension','Error Spotting','Cloze Test'],reasoning:['Coding-Decoding','Series','Syllogism'],gk:['History','Polity','Geography','Current Affairs']};
+const MAXR=5;
+let S={ch:{},mocks:[]},tab='maths';
+try{const r=localStorage.getItem('sq1');if(r)S=JSON.parse(r)}catch(e){}
+SUBJ.forEach(s=>{if(!S.ch[s.k])S.ch[s.k]=(DEF[s.k]||[]).map(n=>({n,d:false,r:0}))});
+function save(){try{localStorage.setItem('sq1',JSON.stringify(S))}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function xpCalc(){let x=0;SUBJ.forEach(s=>S.ch[s.k].forEach(c=>{if(c.d)x+=10;x+=c.r*5}));x+=S.mocks.length*20;return x}
+function head(){const x=xpCalc(),lv=Math.floor(x/100)+1,t=['Explorer','Learner','Warrior','Strategist','Champion','Legend'];
+  document.getElementById('lvl').textContent=`Level ${lv} · ${t[Math.min(lv-1,5)]} · ${x} XP`;
+  document.getElementById('xp').style.width=(x%100)+'%'}
+function tabs(){document.getElementById('tabs').innerHTML=SUBJ.map(s=>`<button class="tab ${tab==s.k?'on':''}" onclick="go('${s.k}')">${s.e} ${s.n}</button>`).join('')+`<button class="tab ${tab=='mocks'?'on':''}" onclick="go('mocks')">🎯 Mocks</button><button class="tab ${tab=='backup'?'on':''}" onclick="go('backup')">💾 Backup</button>`}
+function go(t){tab=t;render()}
+function render(){tabs();head();document.getElementById('view').innerHTML=tab=='mocks'?mocks():tab=='backup'?backup():subject(tab)}
+function subject(k){
+  const s=SUBJ.find(x=>x.k==k),L=S.ch[k],d=L.filter(c=>c.d).length,tr=L.reduce((a,c)=>a+c.r,0),p=L.length?Math.round(d/L.length*100):0;
+  return `<div class="card"><div class="row"><b class="grow">${s.e} ${s.n}</b><span class="sm">${d}/${L.length} chapters · ${tr} revisions</span></div>
+  <div class="bar"><i style="width:${p}%"></i></div><div class="sm">${p}% complete</div></div>
+  <div class="card"><div class="row"><input id="nc" placeholder="Naya chapter likho..." onkeydown="if(event.key=='Enter')addC('${k}')"><button class="b" onclick="addC('${k}')">+</button></div></div>
+  <div class="card">${L.length?L.map((c,i)=>`<div class="ch"><button class="ck ${c.d?'on':''}" onclick="tg('${k}',${i})">${c.d?'✓':''}</button>
+  <div class="grow"><div class="nm ${c.d?'done':''}">${esc(c.n)}</div></div>
+  <div class="rv"><button onclick="rv('${k}',${i},-1)">−</button><span class="stars">${'⭐'.repeat(Math.min(c.r,MAXR))}${'☆'.repeat(Math.max(0,MAXR-c.r))}</span><button onclick="rv('${k}',${i},1)">+</button><span>${c.r}x</span></div>
+  <button class="x" onclick="dl('${k}',${i})">✕</button></div>`).join(''):'<div class="sm">Koi chapter nahi. Upar add karo!</div>'}</div>`}
+function addC(k){const i=document.getElementById('nc'),v=i.value.trim();if(!v)return;S.ch[k].push({n:v,d:false,r:0});save();render()}
+function tg(k,i){const c=S.ch[k][i];c.d=!c.d;save();render()}
+function rv(k,i,n){const c=S.ch[k][i];c.r=Math.max(0,c.r+n);if(c.r>0)c.d=true;save();render()}
+function dl(k,i){if(confirm('Delete chapter?')){S.ch[k].splice(i,1);save();render()}}
+function acc(m){return m.att?Math.round(m.cor/m.att*100):0}
+function col(a){return a>=85?'var(--ok)':a>=70?'var(--wr)':'var(--bad)'}
+function chart(){
+  const M=S.mocks;if(M.length<2)return '<div class="sm">Chart ke liye kam se kam 2 mocks add karo 📈</div>';
+  const W=320,H=120,P=14,n=M.length,pt=(v,i)=>[P+i*(W-2*P)/(n-1),H-P-(v/100)*(H-2*P)];
+  const line=f=>M.map((m,i)=>pt(f(m),i).join(',')).join(' ');
+  return `<div class="scroll"><svg viewBox="0 0 ${W} ${H}" width="100%"><polyline fill="none" stroke="#6c4cf5" stroke-width="2.5" points="${line(m=>m.max?m.sc/m.max*100:0)}"/><polyline fill="none" stroke="#16a870" stroke-width="2.5" stroke-dasharray="5 4" points="${line(acc)}"/></svg></div><div class="sm">🟣 Score %  &nbsp; 🟢 Accuracy %</div>`}
+function mocks(){
+  const M=S.mocks,avgA=M.length?Math.round(M.reduce((a,m)=>a+acc(m),0)/M.length):0,best=M.length?Math.max(...M.map(m=>m.sc)):0,avgS=M.length?(M.reduce((a,m)=>a+m.sc,0)/M.length).toFixed(1):0;
+  return `<div class="card g2"><div class="stat"><b>${M.length}</b><span>Mocks</span></div><div class="stat"><b>${avgS}</b><span>Avg Score</span></div><div class="stat"><b>${best}</b><span>Best Score</span></div><div class="stat"><b>${avgA}%</b><span>Avg Accuracy</span></div></div>
+  <div class="card"><b>➕ Naya Mock</b><div class="g2" style="margin-top:8px">
+  <input id="mn" placeholder="Mock name"><input id="md" type="date">
+  <input id="ms" type="number" step="0.01" placeholder="Score"><input id="mm" type="number" placeholder="Total marks">
+  <input id="ma" type="number" placeholder="Attempted"><input id="mc" type="number" placeholder="Correct"></div>
+  <button class="b" style="width:100%;margin-top:8px" onclick="addM()">Save Mock 🎯</button></div>
+  <div class="card"><b>📈 Progress</b>${chart()}</div>
+  <div class="card"><b>🗂 History</b>${M.length?M.slice().reverse().map((m,j)=>{const i=M.length-1-j,a=acc(m);return `<div class="mk"><div class="row"><b class="grow">${esc(m.n||'Mock '+(i+1))}</b><span class="pill" style="background:${col(a)}">${a}% acc</span><button class="x" onclick="dm(${i})">✕</button></div>
+  <div class="sm">${m.d||''} · Score ${m.sc}/${m.max} · ${m.cor}/${m.att} sahi</div></div>`}).join(''):'<div class="sm">Abhi koi mock nahi.</div>'}</div>`}
+function addM(){const g=id=>document.getElementById(id).value,sc=parseFloat(g('ms')),max=parseFloat(g('mm')),att=parseInt(g('ma')),cor=parseInt(g('mc'));
+  if([sc,max,att,cor].some(isNaN)){alert('Score, total, attempted aur correct bharo');return}
+  S.mocks.push({n:g('mn'),d:g('md'),sc,max,att,cor});save();render()}
+function dm(i){if(confirm('Delete mock?')){S.mocks.splice(i,1);save();render()}}
+function backup(){return `<div class="card"><b>💾 Backup</b><div class="sm" style="margin:6px 0">Ye code copy karke Notes ya WhatsApp (khud ko) mein save kar lo.</div><textarea id="bk" readonly onclick="this.select()">${esc(JSON.stringify(S))}</textarea><div class="row" style="margin-top:8px"><button class="b grow" onclick="cp()">Copy code</button><button class="b grow" onclick="dlf()">File download</button></div></div><div class="card"><b>♻️ Restore</b><div class="sm" style="margin:6px 0">Purana backup code paste karo. Current data replace ho jayega.</div><textarea id="rs" placeholder="Backup code yahan paste karo"></textarea><button class="b" style="width:100%;margin-top:8px" onclick="rst()">Restore karo</button></div>`}
+function cp(){const t=document.getElementById('bk');t.select();try{navigator.clipboard.writeText(t.value).then(()=>alert('Copy ho gaya ✅')).catch(()=>{document.execCommand('copy');alert('Copy ho gaya ✅')})}catch(e){try{document.execCommand('copy');alert('Copy ho gaya ✅')}catch(x){alert('Box par tap karke code manually copy karo')}}}
+function dlf(){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='study-quest-backup.json';a.click()}catch(e){alert('Download nahi hua, Copy code use karo')}}
+function rst(){try{const d=JSON.parse(document.getElementById('rs').value.trim());if(!d.ch||!Array.isArray(d.mocks))throw 0;if(!confirm('Current data replace karna hai?'))return;S=d;SUBJ.forEach(s=>{if(!S.ch[s.k])S.ch[s.k]=[]});save();alert('Restore ho gaya ✅');go('maths')}catch(e){alert('Code galat hai. Poora code paste karo.')}}
+render();
+</script></body></html>
